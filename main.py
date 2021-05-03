@@ -23,7 +23,7 @@ class ScaleParams:
     res_max: int
 
 
-@dataclass
+@dataclass(order=True)
 class Cell:
     date: date
     value: int
@@ -46,7 +46,7 @@ class Cell:
         )
 
 
-def get_scaling_factors(series, res_min, res_max):
+def get_scaling_factors(series, res_min, res_max) -> ScaleParams:
     return ScaleParams(
         orig_min=min(series),
         orig_max=max(series),
@@ -54,6 +54,12 @@ def get_scaling_factors(series, res_min, res_max):
         res_max=res_max,
     )
 
+def map_weekday(day: int) -> int:
+    if day == 6:
+        return 0
+
+    return day+1
+    
 
 def scale(number: int, params: ScaleParams):
     normalize_from_origin = (number-params.orig_min) / (params.orig_max - params.orig_min)
@@ -64,38 +70,39 @@ def scale(number: int, params: ScaleParams):
 
 
 def fill_series(series):
-    first = series[0][0].isocalendar()
-    last = series[-1][0].isocalendar()
+    first = series[0][0]
+    last = series[-1][0]
+
+    first_weekday = map_weekday(first.weekday())
+    last_weekday = map_weekday(last.weekday())
 
     result = []
 
-    if first.weekday != 1:
-        result.extend([Cell.placeholder_for_date(date.fromisocalendar(first.year, first.week, d))
-                       for d in range(1, first.weekday)])
+    if first_weekday != 0:
+        result.extend(reversed([Cell.placeholder_for_date(first-timedelta(days=d))
+                                for d in range(1, first_weekday+1)]))
 
     result.extend([Cell.from_tuple(x) for x in series])
 
-    if last.weekday != 7:
-        result.extend([Cell.placeholder_for_date(date.fromisocalendar(last.year, last.week, d))
-                       for d in range(last.weekday+1, 8)])
+    if last_weekday != 6:
+        result.extend([Cell.placeholder_for_date(last+timedelta(days=d))
+                       for d in range(1, 7-last_weekday)])
 
 
     return result
 
 
 def transpose(series):
-    days = list(zip(*chunked(fill_series(series), 7)))
+    return list(zip(*chunked(fill_series(series), 7)))
 
-    return [
-        days[6],
-        *days[:6],
-    ]
 
 def get_value(t: tuple):
     return t[1]
 
+
 def get_values(series: list):
     return [get_value(x) for x in series]
+
 
 templates = Jinja2Templates(directory="templates")
 
@@ -104,8 +111,6 @@ templates.env.globals.update(pformat=pformat,
                              get_scaling_factors=get_scaling_factors,
                              scale=scale,
                              get_values=get_values)
-
-
 
 
 

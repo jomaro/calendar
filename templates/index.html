@@ -22,8 +22,23 @@
             width: 1.3ch;
             height: 1.3ch;
             border: 1px solid #a7a7a7;
-            gap: 2px;
+            margin: 2px;
+            border-radius: 1px;
         }
+
+        .month1  {background-color: hsl(000, 55%, 65%)}
+        .month2  {background-color: hsl(180, 55%, 65%)}
+        .month3  {background-color: hsl(060, 55%, 65%)}
+        .month4  {background-color: hsl(240, 55%, 65%)}
+        .month5  {background-color: hsl(120, 55%, 65%)}
+        .month6  {background-color: hsl(300, 55%, 65%)}
+
+        .month7  {background-color: hsl(000, 55%, 65%)}
+        .month8  {background-color: hsl(180, 55%, 65%)}
+        .month9  {background-color: hsl(060, 55%, 65%)}
+        .month10 {background-color: hsl(240, 55%, 65%)}
+        .month11 {background-color: hsl(120, 55%, 65%)}
+        .month12 {background-color: hsl(300, 55%, 65%)}
     </style>
 
 
@@ -34,15 +49,19 @@
             {%- for cell in line -%}
 
             {% if cell.is_placeholder %}
-            <div class="cell"
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top" 
-                title="{{cell.date}}"></div>
+            <div class="outer-cell">
+                <div class="cell"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="{{cell.date}}"></div>
+            </div>
             {% else %}
-            <div class="cell" style="background-color: hsl(122, 100%, {{ 100 - scale(cell.value, scale_params) }}%);" 
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top" 
-                title="{{cell.date}} {{cell.value}}"></div>
+            <div class="outer-cell month{{cell.date.month}}">
+                <div class="cell" style="background-color: hsl(122, 100%, {{ 100 - scale(cell.value, scale_params) }}%);" 
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="top" 
+                    title="{{cell.date}} {{cell.value}}"></div>
+            </div>
             {% endif %}
             {% endfor %}
         </div>
