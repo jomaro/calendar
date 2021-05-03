@@ -46,9 +46,9 @@ class Cell:
         )
 
 
-def get_scaling_factors(series, res_min, res_max) -> ScaleParams:
+def get_scaling_factors(series, res_min, res_max, orig_min=None) -> ScaleParams:
     return ScaleParams(
-        orig_min=min(series),
+        orig_min=orig_min or min(series),
         orig_max=max(series),
         res_min=res_min,
         res_max=res_max,
